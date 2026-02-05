@@ -2,11 +2,8 @@ server:
   port: 8080
 
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/test
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1114
+  profiles:
+    include: secret
 
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -30,7 +27,6 @@ spring:
 # 국립중앙도서관 OpenAPI
 library:
   api:
-    key: "8e00880838bb08e64594eae9009f220559c2703524c2190421c386f63b8f7d50"
     base-url: "https://www.nl.go.kr/NL/search/openApi"
     connect-timeout-ms: 5000
     read-timeout-ms: 10000
