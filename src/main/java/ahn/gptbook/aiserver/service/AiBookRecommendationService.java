@@ -5,10 +5,14 @@ import ahn.gptbook.aiserver.entity.AiBookRecommendation;
 import ahn.gptbook.entity.User;
 import ahn.gptbook.aiserver.repository.AiBookRecommendationRepository;
 import ahn.gptbook.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @Service
 public class AiBookRecommendationService {
@@ -28,21 +32,33 @@ public class AiBookRecommendationService {
     @Transactional
     public void saveFromCallback(AiBookRecommendationCallbackRequest dto) {
 
-        // 🔥 1) FK 연결을 위해 User 엔티티를 반드시 조회해야 한다
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-                );
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // 🔥 2) User 엔티티를 기반으로 Recommendation 엔티티 생성
-        AiBookRecommendation entity = new AiBookRecommendation(
-                user,                     // ← FK(User)
+        repository.save(new AiBookRecommendation(
+                user,
                 dto.bookName(),
                 dto.genre1(),
                 dto.genre2()
-        );
+        ));
 
-        // 🔥 3) 저장
-        repository.save(entity);
+        user.setGenres(mergeGenres(user.getGenres(), dto.genre1(), dto.genre2()));
+        userRepository.save(user); // ✅ 확실하게 반영
+    }
+
+
+    private List<String> mergeGenres(List<String> current, String g1, String g2) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+
+        if (current != null) {
+            for (String g : current) {
+                if (g != null && !g.isBlank()) set.add(g.trim());
+            }
+        }
+
+        if (g1 != null && !g1.isBlank()) set.add(g1.trim());
+        if (g2 != null && !g2.isBlank()) set.add(g2.trim());
+
+        return new ArrayList<>(set);
     }
 }

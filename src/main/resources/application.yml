@@ -18,7 +18,7 @@ spring:
   web:
     cors:
       allowed-origins:
-        - "http://192.168.0.3:5173"
+        - "http://192.168.0.12:5173"
       allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
       allowed-headers: "*"
       allow-credentials: true
@@ -34,7 +34,7 @@ library:
 # AI 서버(WebClient baseUrl)
 ai:
   # 로컬 같은 PC에서 띄웠다면 localhost로 바꿔도 됩니다.
-  base-url: "http://192.168.0.11:8000"
+  base-url: "http://192.168.0.12:8000"
 
 logging:
   level:
