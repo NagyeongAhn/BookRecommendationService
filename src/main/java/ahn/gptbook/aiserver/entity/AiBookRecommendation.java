@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * AI가 만들어 준 추천 결과(책 이름 + 장르 2개)를 DB에 저장하기 위한 JPA Entity
+ */
 @Getter
 @Setter
 @Entity
@@ -18,7 +21,7 @@ public class AiBookRecommendation {
     // FK: user 테이블의 id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)  // FK 컬럼 이름
-    private User user;   // ← Long userId → User 객체로 바뀜
+    private User user;   // Long userId → User 객체로 바뀜
 
     @Column(nullable = false, length = 255)
     private String bookName;

@@ -21,11 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiSyncService {
 
-    private final BookRepository bookRepository;
-    private final AiClient aiClient;
+    private final BookRepository bookRepository; // 로컬 DB 조회용
+    private final AiClient aiClient; // 외부 AI 서버와 통신하는 Client
 
     /**
      * 전체 동기화
+     * - DB에 있는 Book 전체를 배치(batchSize) 단위로 끊어서 AI 서버로 전송(upsert)
      */
     @Transactional(readOnly = true)
     public SyncResult syncAllToAi(int batchSize) {
@@ -34,6 +35,7 @@ public class AiSyncService {
 
     /**
      * 범위 기반 동기화 (startId ~ endId 사이의 Book만 보냄)
+     * - startId ~ endId 사이에 해당하는 Book만 골라서 AI 서버로 전송(upsert)
      */
     @Transactional(readOnly = true)
     public SyncResult syncRangeToAi(int batchSize, Long startId, Long endId) {
@@ -41,26 +43,33 @@ public class AiSyncService {
         Page<Book> slice;
 
         do {
+            // 1) DB에서 페이지 단위로 읽기 (id 기준 오름차순)
             slice = bookRepository.findAll(
                     PageRequest.of(page++, batchSize, Sort.by("id"))
             );
 
+            // 2) 현재 페이지의 Book 목록에서 startId/endId 범위로 필터링
             List<Book> filtered = slice.getContent().stream()
                     .filter(b -> (startId == null || b.getId() >= startId))
                     .filter(b -> (endId == null || b.getId() <= endId))
                     .toList();
 
+            // 3) 필터링된 Book을 AI 서버로 보낼 DTO 형태로 변환
             List<BookUpsertDto> dtos = filtered.stream()
                     .map(this::mapToDto)
                     .toList();
 
             if (dtos.isEmpty()) continue;
 
+            // 4) UpsertRequest 생성
             var req = UpsertRequest.upsert(dtos);
             try {
+                // 5) AI 서버로 upsert 요청
                 UpsertResponse res = aiClient.upsertBooks(req);
 
                 sent += dtos.size();
+
+                // 6) AI 서버 응답 집계
                 if (res != null) {
                     upserted += (res.upserted() == null ? 0 : res.upserted());
                     failed += (res.failed() == null ? 0 : res.failed().size());
@@ -86,6 +95,9 @@ public class AiSyncService {
         return new SyncResult(sent, upserted, failed);
     }
 
+    /**
+     * Book 엔티티 -> AI 서버 전송용 BookUpsertDto로 매핑
+     */
     private BookUpsertDto mapToDto(Book b) {
         return new BookUpsertDto(
                 b.getId(),

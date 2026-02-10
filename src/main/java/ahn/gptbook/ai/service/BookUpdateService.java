@@ -25,7 +25,7 @@ public class BookUpdateService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found: " + id));
 
-        // 1) DB 업데이트 (새로 만든 메서드 사용)
+        // 1) DB 업데이트
         book.update(
                 req.title(),
                 req.author(),
@@ -35,7 +35,7 @@ public class BookUpdateService {
                 req.publishYear(),
                 req.thumbnail()
         );
-        bookRepository.flush(); // AI 호출 전 DB 반영 보장(선호)
+        bookRepository.flush(); // AI 호출 전 DB 반영
 
         // 2) AI 서버로 업서트(update)
         BookUpsertDto dto = new BookUpsertDto(

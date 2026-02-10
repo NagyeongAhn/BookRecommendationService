@@ -22,9 +22,8 @@ public class AiClient {
 
     private final WebClient aiWebClient; // AiServerConfig에서 Bean으로 등록된 WebClient 주입
 
-    /**
-     * 📌 사서추천도서 업서트 (기존 기능)
-     */
+
+     //📌 사서추천도서 업서트
     public UpsertResponse upsertBooks(UpsertRequest request) {
         return aiWebClient.post()
                 .uri("/books/upsert/resync")
@@ -41,9 +40,7 @@ public class AiClient {
                 .block();
     }
 
-    /**
-     * 📌 도서 업데이트 (기존 기능)
-     */
+    //📌 도서 업데이트
     public UpsertResponse updateBook(BookUpsertDto dto) {
         return aiWebClient.post()
                 .uri("/books/upsert/update")
@@ -60,7 +57,7 @@ public class AiClient {
     }
 
     /**
-     * ✅ 프롬프트 전달 (프론트 → 백엔드 → AI 서버)
+     * 프롬프트 전달 (프론트 → 백엔드 → AI 서버)
      * - AiPromptRequest에 포함된 excludeBookIds를 그대로 JSON으로 전송
      * - null 안전 처리: excludeBookIds가 null이면 빈 리스트로 교체
      */
@@ -73,7 +70,7 @@ public class AiClient {
                 .build();
 
         return aiWebClient.post()
-                .uri("/prompt/text") // ⬅️ AI 서버의 엔드포인트 (서버 구현과 합의된 경로)
+                .uri("/prompt/text") // Ai 서버의 엔드포인트
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(safeReq)
@@ -90,7 +87,7 @@ public class AiClient {
     }
 
     /**
-     * ✅ 오버로드: 편의 메서드
+     * 편의 메서드
      * - userId, text, excludeBookIds를 바로 받아서 전송
      */
     public PromptResponseDto sendPrompt(Long userId, String text, List<Long> excludeIds) {

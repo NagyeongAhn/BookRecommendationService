@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+/**
+ * AI 콜백으로 들어온 추천 결과를 DB에 저장하고,
+ * 동시에 해당 사용자의 선호 장르 목록(User.genres)을 누적 갱신하는 서비스
+ */
 @Service
 public class AiBookRecommendationService {
 
@@ -43,7 +47,7 @@ public class AiBookRecommendationService {
         ));
 
         user.setGenres(mergeGenres(user.getGenres(), dto.genre1(), dto.genre2()));
-        userRepository.save(user); // ✅ 확실하게 반영
+        userRepository.save(user);
     }
 
 

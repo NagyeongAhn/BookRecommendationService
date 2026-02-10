@@ -82,7 +82,6 @@ public class PromptRelayController {
      * - 현재 프롬프트에서 이미 추천된 도서만 제외하고 AI에 재요청
      * - DB 이력(exclude) + (요청 excludeIds) 합집합으로 제외 처리
      * - 서비스가 기존 목록 뒤에 "최대 3권" 추가 저장 후 반환
-     *
      * 요청 바디는 PromptRequestDto 재사용(대개 userId/text는 생략 가능)
      */
     @PostMapping(

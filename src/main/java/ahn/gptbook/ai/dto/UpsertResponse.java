@@ -2,6 +2,9 @@ package ahn.gptbook.ai.dto;
 
 import java.util.List;
 
+/**
+ * upsert 결과 응답
+ */
 public record UpsertResponse(
         String status,
         Integer upserted,
